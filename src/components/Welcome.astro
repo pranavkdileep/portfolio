@@ -87,6 +87,7 @@ const ArrowIcon = `
 ---
 
 <div class="site-shell">
+	<div class="scroll-progress" aria-hidden="true"></div>
 	<div class="ambient ambient-one"></div>
 	<div class="ambient ambient-two"></div>
 
@@ -1521,6 +1522,166 @@ const ArrowIcon = `
 		}
 	}
 
+	/* --- Micro-animations & scroll effects --- */
+
+	.ambient-one {
+		animation: ambient-drift 26s ease-in-out infinite alternate;
+	}
+
+	.ambient-two {
+		animation: ambient-drift 34s ease-in-out -10s infinite alternate;
+	}
+
+	@keyframes ambient-drift {
+		from {
+			transform: translate3d(0, 0, 0);
+		}
+		to {
+			transform: translate3d(0, 2.5rem, 0);
+		}
+	}
+
+	.hero .kicker,
+	.hero h1,
+	.hero-action-row {
+		animation: rise-in 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+	}
+
+	.hero h1 {
+		animation-delay: 90ms;
+	}
+
+	.hero-action-row {
+		animation-delay: 200ms;
+	}
+
+	@keyframes rise-in {
+		from {
+			opacity: 0;
+			transform: translateY(18px);
+		}
+	}
+
+	.header-status span {
+		animation: status-pulse 2.4s ease-out infinite;
+	}
+
+	@keyframes status-pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(45, 214, 121, 0.45);
+		}
+		70%,
+		100% {
+			box-shadow: 0 0 0 6px rgba(45, 214, 121, 0);
+		}
+	}
+
+	nav a {
+		transition:
+			color 180ms ease,
+			background 180ms ease,
+			box-shadow 180ms ease;
+	}
+
+	nav a:hover {
+		box-shadow: 0 4px 14px rgba(30, 27, 20, 0.07);
+	}
+
+	.timeline-dot.active {
+		animation: dot-pulse 2.6s ease-out infinite;
+	}
+
+	@keyframes dot-pulse {
+		0% {
+			box-shadow:
+				0 0 0 1px #f06819,
+				0 0 0 0 rgba(240, 104, 25, 0.35);
+		}
+		70%,
+		100% {
+			box-shadow:
+				0 0 0 1px #f06819,
+				0 0 0 7px rgba(240, 104, 25, 0);
+		}
+	}
+
+	.button :global(svg),
+	.text-link :global(svg),
+	.external :global(svg),
+	.project-arrow :global(svg) {
+		transition: transform 200ms ease;
+	}
+
+	.button:hover :global(svg),
+	.text-link:hover :global(svg),
+	a.card:hover .external :global(svg),
+	a.project-card:hover .project-arrow :global(svg) {
+		transform: translate(2px, -2px);
+	}
+
+	.project-arrow {
+		transition:
+			color 200ms ease,
+			background 200ms ease;
+	}
+
+	a.project-card:hover .project-arrow {
+		color: white;
+		background: #f06819;
+	}
+
+	.project-card {
+		transition:
+			transform 220ms ease,
+			border-color 220ms ease,
+			box-shadow 220ms ease;
+	}
+
+	a.project-card:hover {
+		border-color: rgba(240, 104, 25, 0.28);
+	}
+
+	.focus-tags span,
+	.stack-list span,
+	.skill-cloud span {
+		transition:
+			transform 180ms ease,
+			border-color 180ms ease;
+	}
+
+	.focus-tags span:hover,
+	.stack-list span:hover,
+	.skill-cloud span:hover {
+		transform: translateY(-2px);
+		border-color: rgba(240, 104, 25, 0.35);
+	}
+
+	.text-link {
+		transition:
+			color 180ms ease,
+			border-color 180ms ease;
+	}
+
+	.text-link:hover {
+		color: #f06819;
+		border-color: #f06819;
+	}
+
+	.site-shell .reveal {
+		opacity: 0;
+		transform: translateY(22px);
+		transition:
+			opacity 700ms ease,
+			transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition-delay: var(--reveal-delay, 0ms);
+		will-change: opacity, transform;
+	}
+
+	.site-shell .reveal.is-visible {
+		opacity: 1;
+		transform: none;
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		:global(html) {
 			scroll-behavior: auto;
@@ -1528,8 +1689,399 @@ const ArrowIcon = `
 
 		.button,
 		a.card,
-		.project-card {
+		.project-card,
+		.text-link,
+		.project-arrow,
+		nav a,
+		.focus-tags span,
+		.stack-list span,
+		.skill-cloud span,
+		.site-shell .reveal {
 			transition: none;
+		}
+
+		.ambient-one,
+		.ambient-two,
+		.hero .kicker,
+		.hero h1,
+		.hero-action-row,
+		.header-status span,
+		.timeline-dot.active {
+			animation: none;
+		}
+
+		.site-shell .reveal {
+			opacity: 1;
+			transform: none;
+		}
+	}
+
+	/* --- Advanced styling & motion --- */
+
+	.site-shell {
+		overflow: clip;
+	}
+
+	.site-shell::after {
+		content: "";
+		position: fixed;
+		inset: 0;
+		z-index: 55;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+		opacity: 0.035;
+		mix-blend-mode: multiply;
+		pointer-events: none;
+	}
+
+	.scroll-progress {
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 60;
+		width: 100%;
+		height: 3px;
+		background: linear-gradient(90deg, #f06819, #ffb36c);
+		transform: scaleX(0);
+		transform-origin: left;
+		pointer-events: none;
+	}
+
+	.site-header {
+		position: sticky;
+		top: 10px;
+		z-index: 50;
+		border: 1px solid transparent;
+		border-radius: 999px;
+		transition:
+			padding 320ms ease,
+			background 320ms ease,
+			border-color 320ms ease,
+			box-shadow 320ms ease;
+	}
+
+	.site-header.is-scrolled {
+		padding: 10px 16px;
+		background: rgba(255, 255, 255, 0.6);
+		border-color: rgba(255, 255, 255, 0.92);
+		box-shadow: 0 14px 40px rgba(30, 27, 20, 0.09);
+		backdrop-filter: blur(18px);
+	}
+
+	.brand-mark {
+		transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	.brand:hover .brand-mark {
+		transform: rotate(-8deg) scale(1.08);
+	}
+
+	.accent,
+	.footer-callout h2 span {
+		background: linear-gradient(100deg, #f06819 20%, #ffa15c 40%, #f06819 60%);
+		background-size: 200% 100%;
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+		animation: text-shimmer 7s linear infinite;
+	}
+
+	@keyframes text-shimmer {
+		to {
+			background-position: -200% 0;
+		}
+	}
+
+	.avatar {
+		animation: avatar-sway 7s ease-in-out infinite;
+	}
+
+	@keyframes avatar-sway {
+		0%,
+		100% {
+			transform: rotate(-3deg);
+		}
+		50% {
+			transform: rotate(2.5deg) translateY(-2px);
+		}
+	}
+
+	.spotlight::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		opacity: 0;
+		background: radial-gradient(
+			300px circle at var(--mx, 50%) var(--my, 50%),
+			rgba(240, 104, 25, 0.09),
+			transparent 70%
+		);
+		transition: opacity 350ms ease;
+		pointer-events: none;
+	}
+
+	.spotlight:hover::before {
+		opacity: 1;
+	}
+
+	a.project-card,
+	a.project-card:hover {
+		transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
+			translateY(var(--lift, 0px));
+	}
+
+	a.project-card:hover {
+		--lift: -4px;
+	}
+
+	.terminal,
+	.job-visual {
+		transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	a.deployer-card:hover .terminal {
+		transform: perspective(500px) rotateX(0deg) rotateZ(0deg) translateY(-3px);
+	}
+
+	a.current-card:hover .job-visual {
+		transform: rotate(0deg) translateY(-3px);
+	}
+
+	.deploy-line b {
+		position: relative;
+		overflow: hidden;
+	}
+
+	.deploy-line b::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+		transform: translateX(-100%);
+		animation: scan 2.6s ease-in-out infinite;
+	}
+
+	.deploy-line + .deploy-line b::after {
+		animation-delay: 1.3s;
+	}
+
+	@keyframes scan {
+		60%,
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	.deploy-line i {
+		animation: blink 2.6s ease-in-out infinite;
+	}
+
+	@keyframes blink {
+		50% {
+			opacity: 0.45;
+		}
+	}
+
+	.map-pin::after {
+		content: "";
+		position: absolute;
+		inset: -5px;
+		border: 1px solid rgba(240, 104, 25, 0.55);
+		border-radius: 50%;
+		animation: ping 2.4s ease-out infinite;
+	}
+
+	@keyframes ping {
+		0% {
+			transform: scale(0.7);
+			opacity: 1;
+		}
+		80%,
+		100% {
+			transform: scale(1.9);
+			opacity: 0;
+		}
+	}
+
+	.button-white {
+		position: relative;
+		overflow: hidden;
+	}
+
+	.button-white::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: -75%;
+		width: 50%;
+		height: 100%;
+		background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+		transform: skewX(-20deg);
+		animation: sheen 4.5s ease-in-out infinite;
+	}
+
+	@keyframes sheen {
+		0%,
+		55% {
+			left: -75%;
+		}
+		100% {
+			left: 125%;
+		}
+	}
+
+	.footer-bottom div a {
+		position: relative;
+	}
+
+	.footer-bottom div a::after {
+		content: "";
+		position: absolute;
+		bottom: -3px;
+		left: 0;
+		width: 100%;
+		height: 1px;
+		background: #f47a2e;
+		transform: scaleX(0);
+		transform-origin: right;
+		transition: transform 260ms ease;
+	}
+
+	.footer-bottom div a:hover::after {
+		transform: scaleX(1);
+		transform-origin: left;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.accent,
+		.footer-callout h2 span,
+		.avatar,
+		.deploy-line i,
+		.deploy-line b::after,
+		.map-pin::after,
+		.button-white::after {
+			animation: none;
+		}
+
+		.site-header,
+		.brand-mark,
+		.terminal,
+		.job-visual,
+		.spotlight::before,
+		.footer-bottom div a::after {
+			transition: none;
+		}
+
+		.scroll-progress {
+			display: none;
 		}
 	}
 </style>
+
+<script>
+	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	/* Scroll progress bar + condensed header state */
+	const progressBar = document.querySelector('.scroll-progress') as HTMLElement | null;
+	const header = document.querySelector('.site-header');
+
+	const onScroll = () => {
+		const doc = document.documentElement;
+		const max = doc.scrollHeight - doc.clientHeight;
+		if (progressBar) {
+			progressBar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+		}
+		header?.classList.toggle('is-scrolled', window.scrollY > 24);
+	};
+
+	window.addEventListener('scroll', onScroll, { passive: true });
+	onScroll();
+
+	if (!reduceMotion && 'IntersectionObserver' in window) {
+		/* Staggered scroll reveals */
+		const groups = [
+			'.bento > .card',
+			'.section-heading',
+			'.project-grid > *',
+			'.about-copy',
+			'.about-details .detail-block',
+			'.skill-cloud span',
+			'.footer-callout > *',
+		];
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (!entry.isIntersecting) continue;
+					const el = entry.target as HTMLElement;
+					observer.unobserve(el);
+					el.classList.add('is-visible');
+					el.addEventListener(
+						'transitionend',
+						() => {
+							// Restore original hover transitions once revealed.
+							el.classList.remove('reveal', 'is-visible');
+							el.style.removeProperty('--reveal-delay');
+						},
+						{ once: true },
+					);
+				}
+			},
+			{ threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+		);
+
+		for (const selector of groups) {
+			document.querySelectorAll(selector).forEach((element, index) => {
+				const el = element as HTMLElement;
+				el.classList.add('reveal');
+				el.style.setProperty('--reveal-delay', `${Math.min(index * 70, 420)}ms`);
+				observer.observe(el);
+			});
+		}
+
+		/* Animated count-up for the stats card */
+		const counterObserver = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (!entry.isIntersecting) continue;
+					const el = entry.target as HTMLElement;
+					counterObserver.unobserve(el);
+					const text = el.textContent ?? '';
+					const match = text.match(/[\d.]+/);
+					if (!match) continue;
+					const target = parseFloat(match[0]);
+					const decimals = (match[0].split('.')[1] ?? '').length;
+					const suffix = text.replace(match[0], '');
+					const start = performance.now();
+					const duration = 1400;
+					const tick = (now: number) => {
+						const t = Math.min((now - start) / duration, 1);
+						const eased = 1 - Math.pow(1 - t, 3);
+						el.textContent = (target * eased).toFixed(decimals) + suffix;
+						if (t < 1) requestAnimationFrame(tick);
+					};
+					requestAnimationFrame(tick);
+				}
+			},
+			{ threshold: 0.6 },
+		);
+
+		document.querySelectorAll('.stats-grid strong').forEach((el) => counterObserver.observe(el));
+	}
+
+	/* Pointer spotlight glow on cards */
+	if (!reduceMotion && window.matchMedia('(hover: hover)').matches) {
+		document.querySelectorAll('.bento > .card, .project-card').forEach((element) => {
+			const el = element as HTMLElement;
+			el.classList.add('spotlight');
+
+			el.addEventListener('pointermove', (event) => {
+				const rect = el.getBoundingClientRect();
+				const x = event.clientX - rect.left;
+				const y = event.clientY - rect.top;
+				el.style.setProperty('--mx', `${x}px`);
+				el.style.setProperty('--my', `${y}px`);
+			});
+		});
+	}
+</script>
