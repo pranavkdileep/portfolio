@@ -111,6 +111,7 @@ const ArrowIcon = `
 
 	<main id="top">
 		<section class="hero" aria-labelledby="hero-title">
+			<div class="hero-aurora" aria-hidden="true"></div>
 			<div class="hero-copy">
 				<p class="kicker">Hello, I’m</p>
 				<h1 id="hero-title">
@@ -1054,6 +1055,7 @@ const ArrowIcon = `
 
 	.section {
 		padding: 132px 0 0;
+		scroll-margin-top: 84px;
 	}
 
 	.section-heading {
@@ -1976,6 +1978,128 @@ const ArrowIcon = `
 			display: none;
 		}
 	}
+
+	/* --- CSS magic --- */
+
+	.hero {
+		position: relative;
+	}
+
+	.hero-aurora {
+		position: absolute;
+		z-index: -1;
+		top: -70px;
+		left: -110px;
+		width: 520px;
+		height: 400px;
+		max-width: 90vw;
+		background:
+			radial-gradient(closest-side at 38% 45%, rgba(240, 104, 25, 0.14), transparent 72%),
+			radial-gradient(closest-side at 72% 28%, rgba(255, 179, 108, 0.18), transparent 68%);
+		border-radius: 50%;
+		filter: blur(46px);
+		animation: aurora-float 16s ease-in-out infinite alternate;
+		pointer-events: none;
+	}
+
+	@keyframes aurora-float {
+		0% {
+			transform: translate3d(0, 0, 0) scale(1);
+		}
+		50% {
+			transform: translate3d(70px, 26px, 0) scale(1.16);
+		}
+		100% {
+			transform: translate3d(24px, -18px, 0) scale(0.94);
+		}
+	}
+
+	@property --beam-angle {
+		syntax: "<angle>";
+		inherits: false;
+		initial-value: 0deg;
+	}
+
+	footer::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		padding: 1px;
+		border-radius: inherit;
+		background: conic-gradient(
+			from var(--beam-angle),
+			transparent 0deg 286deg,
+			rgba(244, 122, 46, 0.85) 322deg,
+			#ffc79b 340deg,
+			transparent 360deg
+		);
+		-webkit-mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		-webkit-mask-composite: xor;
+		mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		mask-composite: exclude;
+		animation: beam-spin 7s linear infinite;
+		pointer-events: none;
+	}
+
+	@keyframes beam-spin {
+		to {
+			--beam-angle: 360deg;
+		}
+	}
+
+	@supports (animation-timeline: scroll()) {
+		.ambient-one {
+			animation:
+				ambient-drift 26s ease-in-out infinite alternate,
+				parallax-rise linear both;
+			animation-timeline: auto, scroll();
+		}
+
+		.ambient-two {
+			animation:
+				ambient-drift 34s ease-in-out -10s infinite alternate,
+				parallax-sink linear both;
+			animation-timeline: auto, scroll();
+		}
+	}
+
+	@keyframes parallax-rise {
+		to {
+			translate: 0 -10rem;
+		}
+	}
+
+	@keyframes parallax-sink {
+		to {
+			translate: 0 14rem;
+		}
+	}
+
+	.magnetic {
+		transition:
+			transform 180ms ease,
+			box-shadow 180ms ease,
+			background 180ms ease,
+			translate 320ms cubic-bezier(0.22, 1, 0.36, 1);
+		will-change: translate;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero-aurora,
+		.ambient-one,
+		.ambient-two {
+			animation: none;
+		}
+
+		footer::before {
+			display: none;
+		}
+	}
 </style>
 
 <script>
@@ -2069,11 +2193,12 @@ const ArrowIcon = `
 		document.querySelectorAll('.stats-grid strong').forEach((el) => counterObserver.observe(el));
 	}
 
-	/* Pointer spotlight glow on cards */
+	/* Pointer spotlight glow on cards + 3D tilt on project cards */
 	if (!reduceMotion && window.matchMedia('(hover: hover)').matches) {
 		document.querySelectorAll('.bento > .card, .project-card').forEach((element) => {
 			const el = element as HTMLElement;
 			el.classList.add('spotlight');
+			const tiltable = el.matches('a.project-card');
 
 			el.addEventListener('pointermove', (event) => {
 				const rect = el.getBoundingClientRect();
@@ -2081,6 +2206,34 @@ const ArrowIcon = `
 				const y = event.clientY - rect.top;
 				el.style.setProperty('--mx', `${x}px`);
 				el.style.setProperty('--my', `${y}px`);
+				if (tiltable) {
+					el.style.setProperty('--ry', `${(x / rect.width - 0.5) * 6}deg`);
+					el.style.setProperty('--rx', `${(0.5 - y / rect.height) * 6}deg`);
+				}
+			});
+
+			if (tiltable) {
+				el.addEventListener('pointerleave', () => {
+					el.style.setProperty('--rx', '0deg');
+					el.style.setProperty('--ry', '0deg');
+				});
+			}
+		});
+
+		/* Magnetic pull on primary buttons */
+		document.querySelectorAll('.hero-actions .button, .button-white').forEach((element) => {
+			const el = element as HTMLElement;
+			el.classList.add('magnetic');
+
+			el.addEventListener('pointermove', (event) => {
+				const rect = el.getBoundingClientRect();
+				const x = event.clientX - rect.left - rect.width / 2;
+				const y = event.clientY - rect.top - rect.height / 2;
+				el.style.translate = `${x * 0.16}px ${y * 0.3}px`;
+			});
+
+			el.addEventListener('pointerleave', () => {
+				el.style.translate = '';
 			});
 		});
 	}
